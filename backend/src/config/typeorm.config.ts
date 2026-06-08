@@ -4,8 +4,6 @@ import { DataSourceOptions } from 'typeorm';
 export function getTypeOrmConfig(): DataSourceOptions {
   const isProduction = !!process.env.DATABASE_URL;
 
-  const sslConfig = isProduction ? { rejectUnauthorized: false } : false;
-
   return {
     type: 'postgres',
     url: process.env.DATABASE_URL,
@@ -20,7 +18,14 @@ export function getTypeOrmConfig(): DataSourceOptions {
     entities: [join(__dirname, '..', '**', '*.entity.{ts,js}')],
     synchronize: true,
 
-    ssl: sslConfig,
-    extra: isProduction ? { ssl: sslConfig } : undefined,
+    // ✅ Solo definir ssl en extra, no en ambos lados
+    ssl: isProduction ? { rejectUnauthorized: false } : false,
+    extra: isProduction
+      ? {
+          ssl: {
+            rejectUnauthorized: false,
+          },
+        }
+      : {},
   };
 }
