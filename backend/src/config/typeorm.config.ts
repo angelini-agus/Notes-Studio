@@ -7,7 +7,7 @@ export function getTypeOrmConfig(): DataSourceOptions {
 
   const sslConfig = isProduction
     ? {
-        rejectUnauthorized: true,
+        rejectUnauthorized: false,
         ca: fs.readFileSync(join(process.cwd(), 'ca.pem')).toString(),
       }
     : false;
