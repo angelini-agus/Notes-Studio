@@ -3,7 +3,9 @@ import { DataSourceOptions } from 'typeorm';
 
 export function getTypeOrmConfig(): DataSourceOptions {
   const isProduction = !!process.env.DATABASE_URL;
-
+  if (isProduction) {
+    process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+  }
   return {
     type: 'postgres',
     url: process.env.DATABASE_URL,
