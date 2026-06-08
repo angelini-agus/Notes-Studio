@@ -1,14 +1,12 @@
 import { join } from 'path';
 import { DataSourceOptions } from 'typeorm';
-import * as fs from 'fs';
 
 export function getTypeOrmConfig(): DataSourceOptions {
   const isProduction = !!process.env.DATABASE_URL;
 
   const sslConfig = isProduction
     ? {
-        rejectUnauthorized: true,
-        ca: fs.readFileSync(join(process.cwd(), 'ca.pem')).toString(),
+        rejectUnauthorized: false,
       }
     : false;
 
@@ -16,7 +14,7 @@ export function getTypeOrmConfig(): DataSourceOptions {
     type: 'postgres',
     url: process.env.DATABASE_URL,
 
-    // Configuración para LOCAL
+    // Configuración para LOCAL y despliegues sin DATABASE_URL
     host: String(process.env.POSTGRES_HOST ?? 'localhost'),
     port: Number(process.env.POSTGRES_PORT ?? 5432),
     username: String(process.env.POSTGRES_USERNAME ?? 'postgres'),
