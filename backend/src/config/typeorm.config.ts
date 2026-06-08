@@ -1,27 +1,19 @@
 import { join } from 'path';
 import { DataSourceOptions } from 'typeorm';
+import * as fs from 'fs';
 
 export function getTypeOrmConfig(): DataSourceOptions {
-  // Si el HOST está definido y no es localhost, asumimos que es la nube y forzamos SSL
-  const isCloudDB = process.env.POSTGRES_HOST && process.env.POSTGRES_HOST !== 'localhost';
-
-  const sslConfig = isCloudDB
-    ? { rejectUnauthorized: false }
-    : false;
+  // Configuramos el SSL estricto que exige Aiven con el archivo físico
+  const sslConfig = {
+    rejectUnauthorized: true,
+    ca: fs.readFileSync(join(process.cwd(), 'ca.pem')).toString(),
+  };
 
   return {
     type: 'postgres',
-    url: process.env.DATABASE_URL, // Se usa solo si está definida
-
-    host: String(process.env.POSTGRES_HOST ?? 'localhost'),
-    port: Number(process.env.POSTGRES_PORT ?? 5432),
-    username: String(process.env.POSTGRES_USERNAME ?? 'postgres'),
-    password: String(process.env.POSTGRES_PASSWORD ?? ''),
-    database: String(process.env.POSTGRES_DATABASE ?? 'notes_app'),
-
+    url: process.env.DATABASE_URL,
     entities: [join(__dirname, '..', '**', '*.entity.{ts,js}')],
     synchronize: true,
-
     ssl: sslConfig,
     extra: { ssl: sslConfig },
   };
