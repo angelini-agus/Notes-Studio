@@ -3,9 +3,8 @@ import { DataSourceOptions } from 'typeorm';
 import * as fs from 'fs';
 
 export function getTypeOrmConfig(): DataSourceOptions {
-  // Configuramos el SSL estricto que exige Aiven con el archivo físico
   const sslConfig = {
-    rejectUnauthorized: true,
+    rejectUnauthorized: false, // <-- Cambiar esto de true a false
     ca: fs.readFileSync(join(process.cwd(), 'ca.pem')).toString(),
   };
 
