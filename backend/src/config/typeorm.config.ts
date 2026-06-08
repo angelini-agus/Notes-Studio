@@ -1,16 +1,10 @@
 import { join } from 'path';
 import { DataSourceOptions } from 'typeorm';
-import * as fs from 'fs';
 
 export function getTypeOrmConfig(): DataSourceOptions {
   const isProduction = !!process.env.DATABASE_URL;
 
-  const sslConfig = isProduction
-    ? {
-        rejectUnauthorized: false,
-        ca: fs.readFileSync(join(process.cwd(), 'ca.pem')).toString(),
-      }
-    : false;
+  const sslConfig = isProduction ? { rejectUnauthorized: false } : false;
 
   return {
     type: 'postgres',
@@ -27,6 +21,6 @@ export function getTypeOrmConfig(): DataSourceOptions {
     synchronize: true,
 
     ssl: sslConfig,
-    extra: { ssl: sslConfig },
+    extra: isProduction ? { ssl: sslConfig } : undefined,
   };
 }
