@@ -1,6 +1,6 @@
-# Notes App Challenge
+# Notes Studio - Full-Stack React Application
 
-Minimal full-stack notes application built for a technical challenge with a strict `backend/` + `frontend/` split.
+A comprehensive full-stack note management application. The frontend is a modern, responsive Single Page Application (SPA) built entirely with **React**, designed to provide a seamless user experience. It consumes a robust REST API powered by NestJS and PostgreSQL.
 
 Live Demo: https://notes-app-frontend-bice.vercel.app/
 
@@ -12,13 +12,26 @@ Live Demo: https://notes-app-frontend-bice.vercel.app/
   <img src="./frontend/screenshots/dashboard.png" alt="Dashboard View" width="48%" />
 </p>
 
-## Stack
+## Technology Stack
 
-- Node.js `18+`
-- npm `9+`
-- PostgreSQL `14+`
-- Backend: NestJS, TypeORM, PostgreSQL
-- Frontend: React, Vite, Tailwind CSS, lucide-react
+### Frontend (React SPA)
+- **React**: Core library for building the dynamic, component-based user interface.
+- **Vite**: Next-generation frontend tooling for rapid development and optimized builds.
+- **Tailwind CSS**: Utility-first CSS framework for highly responsive and modern styling.
+- **lucide-react**: Clean and consistent iconography.
+- **Architecture**: Pure SPA with API logic strictly isolated within a dedicated service layer (`src/services/api.ts`).
+
+### Backend
+- **NestJS**: Progressive Node.js framework (Node.js 18+) maintaining a layered architecture (Controllers, Services, Entities, DTOs).
+- **Database**: PostgreSQL (14+) integrated via **TypeORM** for persistent relational data, migrations, and schema management.
+
+## Key Features
+
+- **React-Powered UI**: Fast, responsive, and dynamic interface ensuring smooth navigation without page reloads.
+- **Comprehensive Note Management**: Full CRUD operations (Create, Read, Update, Delete) for notes.
+- **Organizational Tools**: Create custom categories and apply multiple tags per note for efficient filtering.
+- **Archiving System**: Distinct views for active and archived notes to maintain a clean workspace.
+- **Relational Backend**: Persistent data storage utilizing TypeORM migrations and relational mapping.
 
 ## Project Structure
 
@@ -44,34 +57,30 @@ Live Demo: https://notes-app-frontend-bice.vercel.app/
 └── README.md
 ```
 
-## Features
-
-- CRUD for notes: create, list, update, delete
-- Archive and unarchive notes
-- Separate active and archived note views
-- Multiple categories per note
-- Category creation and filtering
-- Persistent relational database with TypeORM
-- SPA frontend consuming a REST API
-
 ## Getting Started
 
-### Fast setup
+### Automated Setup
+
+A bash script is provided to streamline the local environment setup. Ensure you have Node.js (18+) and npm (9+) installed.
 
 ```bash
 bash setup.sh
 ```
 
-That script will:
+The automated setup script will:
+1. Install dependencies for both the React frontend and NestJS backend.
+2. Clone `.env.example` to active `.env` files.
+3. Execute TypeORM database migrations.
+4. Seed the PostgreSQL database with realistic English demo content.
+5. Spin up the NestJS API and the Vite development server concurrently.
 
-1. Install dependencies in `backend/` and `frontend/`
-2. Copy `.env.example` to `.env` when missing
-3. Run TypeORM migrations
-4. Seed the database with English demo content
-5. Start the NestJS API and Vite SPA
+*Note: The backend expects a running PostgreSQL instance. If `psql` is available, the setup script will automatically create the target database when missing.*
 
-### Manual setup
+### Manual Setup
 
+If you prefer to start the services manually:
+
+**Backend Setup:**
 ```bash
 cd backend
 npm install
@@ -81,6 +90,7 @@ npm run seed
 npm run start:dev
 ```
 
+**Frontend Setup:**
 ```bash
 cd frontend
 npm install
@@ -88,20 +98,9 @@ cp .env.example .env
 npm run dev
 ```
 
-## Default URLs
+## Environment Configuration
 
-- Frontend: `http://localhost:5173`
-- Backend: `http://localhost:3001`
-
-## Demo Login
-
-- Email: `demo@notesstudio.app`
-- Password: `NotesDemo123!`
-
-## Environment
-
-Backend uses PostgreSQL only:
-
+### Backend (`backend/.env`)
 ```env
 PORT=3001
 POSTGRES_HOST=localhost
@@ -111,38 +110,31 @@ POSTGRES_PASSWORD=postgres
 POSTGRES_DATABASE=notes_app
 ```
 
-Frontend:
-
+### Frontend (`frontend/.env`)
 ```env
 VITE_API_URL=http://localhost:3001
 ```
 
-## API Summary
+## Default Local URLs
 
-- `GET /notes`
-- `GET /notes/archived`
-- `GET /notes/:id`
-- `POST /notes`
-- `PUT /notes/:id`
-- `PATCH /notes/:id/archive`
-- `PATCH /notes/:id/unarchive`
-- `DELETE /notes/:id`
-- `GET /categories`
-- `POST /categories`
+- React Frontend: `http://localhost:5173`
+- API Backend: `http://localhost:3001`
 
-## Seed Data
+## Demo Access
 
-Run the backend seed manually with:
+To test the live application or your local deployment, you can use the following seeded credentials:
+- **Email**: `demo@notesstudio.app`
+- **Password**: `NotesDemo123!`
 
-```bash
-cd backend
-npm run seed
-```
+## API Reference
 
-The seed is idempotent and creates realistic English notes across product, engineering, research, personal, and meeting-related categories.
-
-## Notes
-
-- The backend expects a running PostgreSQL instance. If `psql` is available, `setup.sh` will create the target database automatically when missing.
-- The backend keeps a layered structure with controllers, services, entities, DTOs, and migrations.
-- The frontend is a pure SPA and keeps API logic isolated in `src/services/api.ts`.
+- `GET /notes` - List active notes
+- `GET /notes/archived` - List archived notes
+- `GET /notes/:id` - Retrieve a specific note
+- `POST /notes` - Create a new note
+- `PUT /notes/:id` - Fully update an existing note
+- `PATCH /notes/:id/archive` - Move a note to the archive
+- `PATCH /notes/:id/unarchive` - Restore a note from the archive
+- `DELETE /notes/:id` - Permanently delete a note
+- `GET /categories` - List all available categories
+- `POST /categories` - Create a new category
