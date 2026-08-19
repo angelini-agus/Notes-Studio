@@ -34,39 +34,37 @@ export class NotesService {
     return this.notesRepository.save(note);
   }
 
-  async findAll(archived = false, categoryId?: string, page = 1, limit = 100): Promise<Note[]> {
+  async findAll(archived = false, categoryId?: string, page?: number, limit?: number): Promise<Note[]> {
     const queryBuilder = this.notesRepository
       .createQueryBuilder('note')
       .leftJoinAndSelect('note.categories', 'category')
       .where('note.isArchived = :archived', { archived })
-      .orderBy('note.updatedAt', 'DESC')
-      .take(limit)
-      .skip((page - 1) * limit);
+      .orderBy('note.updatedAt', 'DESC');
 
     if (categoryId) {
-      // Filtra notas que pertenezcan a la categoría buscada
-      queryBuilder.andWhere((qb) => {
-        const subQuery = qb
-          .subQuery()
-          .select('1')
-          .from('note_categories_category', 'nc')
-          .where('nc."noteId" = note.id')
-          .andWhere('nc."categoryId" = :categoryId', { categoryId })
-          .getQuery();
-        return `EXISTS ${subQuery}`;
-      });
+      queryBuilder.innerJoin(
+        'note_categories_category',
+        'filter_nc',
+        'filter_nc."noteId" = note.id AND filter_nc."categoryId" = :categoryId',
+        { categoryId },
+      );
+    }
+
+    if (page && limit) {
+      queryBuilder.take(limit).skip((page - 1) * limit);
     }
 
     return queryBuilder.getMany();
   }
 
-  async findArchived(categoryId?: string): Promise<Note[]> {
-    return this.findAll(true, categoryId);
+  async findArchived(categoryId?: string, page?: number, limit?: number): Promise<Note[]> {
+    return this.findAll(true, categoryId, page, limit);
   }
 
   async findOne(id: string): Promise<Note> {
     const note = await this.notesRepository.findOne({
       where: { id },
+      relations: ['categories'],
     });
 
     if (!note) {

@@ -25,7 +25,6 @@ export class Note {
 
   @ManyToMany(() => Category, (category) => category.notes, {
     cascade: false,
-    eager: true,
   })
   @JoinTable()
   categories!: Category[];

@@ -25,10 +25,12 @@ export class NotesController {
   @Get()
   findAll(
     @Query('categoryId') categoryId?: string,
-    @Query('page') page?: number,
-    @Query('limit') limit?: number,
+    @Query('page') page?: string,
+    @Query('limit') limit?: string,
   ) {
-    return this.notesService.findAll(false, categoryId, page, limit);
+    const pageNum = page ? parseInt(page, 10) : undefined;
+    const limitNum = limit ? parseInt(limit, 10) : undefined;
+    return this.notesService.findAll(false, categoryId, pageNum, limitNum);
   }
 
   /**
@@ -46,8 +48,14 @@ export class NotesController {
    * Lista notas archivadas. Soporta filtrado por categoría.
    */
   @Get('archived')
-  findArchived(@Query('categoryId') categoryId?: string) {
-    return this.notesService.findArchived(categoryId);
+  findArchived(
+    @Query('categoryId') categoryId?: string,
+    @Query('page') page?: string,
+    @Query('limit') limit?: string,
+  ) {
+    const pageNum = page ? parseInt(page, 10) : undefined;
+    const limitNum = limit ? parseInt(limit, 10) : undefined;
+    return this.notesService.findArchived(categoryId, pageNum, limitNum);
   }
 
   /**
