@@ -130,8 +130,8 @@ function App() {
     <>
       {isAuthenticated ? (
         // pb-20 en mobile para que la barra inferior no tape el contenido
-        <main className="min-h-screen px-4 py-5 pb-20 text-slate-900 md:px-8 md:py-8 xl:pb-8">
-          <div className="mx-auto max-w-7xl xl:grid xl:gap-5 xl:grid-cols-3">
+        <main className="min-h-screen px-4 py-5 pb-20 text-slate-900 md:px-8 md:py-8 xl:h-dvh xl:overflow-hidden xl:pb-8">
+          <div className="mx-auto max-w-7xl xl:grid xl:h-full xl:gap-5 xl:grid-cols-3">
 
             {/* Panel 1: Sidebar de categorías */}
             <div className={panelClass('sidebar')}>
@@ -151,7 +151,7 @@ function App() {
             </div>
 
             {/* Panel 2: Lista de notas */}
-            <section className={`animate-fade-up-soft-delay-1 space-y-5 ${panelClass('list')}`}>
+            <section className={`animate-fade-up-soft-delay-1 space-y-5 ${panelClass('list')} xl:flex xl:flex-col xl:overflow-hidden`}>
               <NotesHeader
                 onCreate={handleStartCreate}
                 onViewChange={changeView}
@@ -159,19 +159,22 @@ function App() {
                 view={view}
               />
 
-              {isLoading ? (
-                <div className="panel-border animate-fade-up-soft-delay-2 rounded-[28px] border bg-white/70 px-6 py-16 text-center text-sm text-zinc-500 shadow-panel">
-                  Loading notes...
-                </div>
-              ) : (
-                <NotesList
-                  notes={notes}
-                  onRequestDelete={() => setDialogState({ type: 'note' })}
-                  onSelect={handleSelectNote}
-                  onToggleArchive={archiveSelected}
-                  selectedNoteId={selectedNote?.id ?? null}
-                />
-              )}
+              {/* Scroll interno: el header queda fijo arriba, la lista scrollea sola */}
+              <div className="xl:flex-1 xl:min-h-0 xl:overflow-y-auto">
+                {isLoading ? (
+                  <div className="panel-border animate-fade-up-soft-delay-2 rounded-[28px] border bg-white/70 px-6 py-16 text-center text-sm text-zinc-500 shadow-panel">
+                    Loading notes...
+                  </div>
+                ) : (
+                  <NotesList
+                    notes={notes}
+                    onRequestDelete={() => setDialogState({ type: 'note' })}
+                    onSelect={handleSelectNote}
+                    onToggleArchive={archiveSelected}
+                    selectedNoteId={selectedNote?.id ?? null}
+                  />
+                )}
+              </div>
             </section>
 
             {/* Panel 3: Editor */}
