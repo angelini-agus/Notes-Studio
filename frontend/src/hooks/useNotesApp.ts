@@ -27,7 +27,6 @@ export function useNotesApp(notify?: NotifyFn, enabled = true) {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [saveFeedback, setSaveFeedback] = useState<'idle' | 'saved'>('idle');
-  const [error, setError] = useState<string | null>(null);
 
   const selectedNote = notes.find((note) => note.id === selectedNoteId) ?? null;
 
@@ -84,7 +83,6 @@ export function useNotesApp(notify?: NotifyFn, enabled = true) {
 
   async function loadNotes(nextView: NotesView, categoryId?: string) {
     setIsLoading(true);
-    setError(null);
 
     try {
       const response = await api.getNotes(nextView, categoryId);
@@ -105,7 +103,6 @@ export function useNotesApp(notify?: NotifyFn, enabled = true) {
       });
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Could not load notes.';
-      setError(message);
       notify?.({
         title: 'Could not load notes',
         message,
@@ -116,22 +113,22 @@ export function useNotesApp(notify?: NotifyFn, enabled = true) {
     }
   }
 
+  /**
+   * Usa el endpoint GET /notes/counts que ejecuta GROUP BY en el servidor.
+   * Evita traer todas las notas al frontend solo para contarlas.
+   */
   async function loadCategoryCounts(nextView: NotesView) {
     try {
-      const response = await api.getNotes(nextView);
-      const nextCounts = response.reduce<Record<string, number>>((counts, note) => {
-        for (const category of note.categories) {
-          counts[category.id] = (counts[category.id] ?? 0) + 1;
-        }
-
-        return counts;
-      }, {});
-
-      setCategoryCounts(nextCounts);
-      setViewNoteCount(response.length);
+      const { counts, total } = await api.getCounts(nextView);
+      setCategoryCounts(counts);
+      setViewNoteCount(total);
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Could not load category counts.';
-      setError(message);
+      notify?.({
+        title: 'Could not load counts',
+        message,
+        tone: 'error',
+      });
     }
   }
 
@@ -141,7 +138,6 @@ export function useNotesApp(notify?: NotifyFn, enabled = true) {
       setCategories(response);
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Could not load categories.';
-      setError(message);
       notify?.({
         title: 'Could not load categories',
         message,
@@ -184,18 +180,15 @@ export function useNotesApp(notify?: NotifyFn, enabled = true) {
 
   async function saveNote() {
     if (!draft.title.trim() || !draft.content.trim()) {
-      const message = 'Title and content are required.';
-      setError(message);
       notify?.({
         title: 'Note not saved',
-        message,
+        message: 'Title and content are required.',
         tone: 'error',
       });
       return false;
     }
 
     setIsSaving(true);
-    setError(null);
     setSaveFeedback('idle');
 
     try {
@@ -248,7 +241,6 @@ export function useNotesApp(notify?: NotifyFn, enabled = true) {
       return true;
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Could not save note.';
-      setError(message);
       notify?.({
         title: 'Could not save note',
         message,
@@ -287,7 +279,6 @@ export function useNotesApp(notify?: NotifyFn, enabled = true) {
       return true;
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Could not update archive state.';
-      setError(message);
       notify?.({
         title: 'Archive action failed',
         message,
@@ -321,7 +312,6 @@ export function useNotesApp(notify?: NotifyFn, enabled = true) {
       return true;
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Could not delete note.';
-      setError(message);
       notify?.({
         title: 'Could not delete note',
         message,
@@ -345,8 +335,6 @@ export function useNotesApp(notify?: NotifyFn, enabled = true) {
       return false;
     }
 
-    setError(null);
-
     try {
       const category = await api.createCategory(nextName);
       setCategories((current) => [...current, category].sort((a, b) => a.name.localeCompare(b.name)));
@@ -366,7 +354,6 @@ export function useNotesApp(notify?: NotifyFn, enabled = true) {
       return true;
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Could not create category.';
-      setError(message);
       notify?.({
         title: 'Could not create category',
         message,
@@ -377,12 +364,11 @@ export function useNotesApp(notify?: NotifyFn, enabled = true) {
   }
 
   async function deleteCategory(categoryId: string) {
-    setError(null);
-
     try {
       const categoryToDelete = categories.find((category) => category.id === categoryId);
       await api.deleteCategory(categoryId);
 
+      // Actualizar estado local de forma optimista
       setCategories((current) => current.filter((category) => category.id !== categoryId));
       setCategoryCounts((current) => {
         const nextCounts = { ...current };
@@ -394,20 +380,16 @@ export function useNotesApp(notify?: NotifyFn, enabled = true) {
         categoryIds: current.categoryIds.filter((id) => id !== categoryId),
       }));
 
+      // Si la categoría eliminada era la activa, volver a "All notes"
+      const nextCategoryId = activeCategoryId === categoryId ? undefined : activeCategoryId;
       if (activeCategoryId === categoryId) {
         setActiveCategoryId(undefined);
-        await loadNotes(view, undefined);
-        await loadCategoryCounts(view);
-        notify?.({
-          title: 'Category deleted',
-          message: `"${categoryToDelete?.name ?? 'Category'}" was removed.`,
-          tone: 'success',
-        });
-        return true;
       }
 
-      await loadNotes(view, activeCategoryId);
+      await loadNotes(view, nextCategoryId);
       await loadCategoryCounts(view);
+
+      // Una sola notificación al final (eliminado código duplicado)
       notify?.({
         title: 'Category deleted',
         message: `"${categoryToDelete?.name ?? 'Category'}" was removed.`,
@@ -416,7 +398,6 @@ export function useNotesApp(notify?: NotifyFn, enabled = true) {
       return true;
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Could not delete category.';
-      setError(message);
       notify?.({
         title: 'Could not delete category',
         message,
@@ -424,10 +405,6 @@ export function useNotesApp(notify?: NotifyFn, enabled = true) {
       });
       return false;
     }
-  }
-
-  function clearError() {
-    setError(null);
   }
 
   function changeView(nextView: NotesView) {
@@ -444,12 +421,10 @@ export function useNotesApp(notify?: NotifyFn, enabled = true) {
     activeCategoryId,
     changeCategoryFilter,
     changeView,
-    clearError,
     createCategory,
     deleteCategory,
     deleteSelected,
     draft,
-    error,
     isLoading,
     isSaving,
     notes,

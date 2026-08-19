@@ -1,20 +1,24 @@
 import 'dotenv/config';
 import { Module } from '@nestjs/common';
+import { APP_GUARD } from '@nestjs/core';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { CategoriesController } from './categories/categories.controller';
-import { CategoriesService } from './categories/categories.service';
-import { Category } from './categories/category.entity';
+import { ApiKeyGuard } from './auth/api-key.guard';
+import { CategoriesModule } from './categories/categories.module';
 import { getTypeOrmConfig } from './config/typeorm.config';
-import { Note } from './notes/note.entity';
-import { NotesController } from './notes/notes.controller';
-import { NotesService } from './notes/notes.service';
+import { NotesModule } from './notes/notes.module';
 
 @Module({
   imports: [
     TypeOrmModule.forRoot(getTypeOrmConfig()),
-    TypeOrmModule.forFeature([Note, Category]),
+    NotesModule,
+    CategoriesModule,
   ],
-  controllers: [NotesController, CategoriesController],
-  providers: [NotesService, CategoriesService],
+  providers: [
+    // Aplica ApiKeyGuard a TODOS los endpoints de la aplicación
+    {
+      provide: APP_GUARD,
+      useClass: ApiKeyGuard,
+    },
+  ],
 })
 export class AppModule {}

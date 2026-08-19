@@ -46,7 +46,9 @@ export function LoginScreen({ isSubmitting, onSubmit }: LoginScreenProps) {
 
               <div className="rounded-[28px] border border-zinc-300/80 bg-white/80 p-5">
                 <p className="text-xs font-medium uppercase tracking-[0.24em] text-zinc-400">Default Password</p>
-                <p className="mt-3 text-sm font-medium text-slate-900">{DEMO_USER.password}</p>
+                <p className="mt-3 text-sm font-medium tracking-[0.2em] text-slate-900">
+                  {'•'.repeat(DEMO_USER.password.length)}
+                </p>
               </div>
             </div>
           </div>

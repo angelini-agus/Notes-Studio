@@ -7,6 +7,11 @@ import { CreateNoteDto } from './dto/create-note.dto';
 import { UpdateNoteCategoriesDto } from './dto/update-note-categories.dto';
 import { UpdateNoteDto } from './dto/update-note.dto';
 
+export interface NoteCountsResult {
+  counts: Record<string, number>;
+  total: number;
+}
+
 @Injectable()
 export class NotesService {
   constructor(
@@ -29,15 +34,27 @@ export class NotesService {
     return this.notesRepository.save(note);
   }
 
-  async findAll(archived = false, categoryId?: string): Promise<Note[]> {
+  async findAll(archived = false, categoryId?: string, page = 1, limit = 100): Promise<Note[]> {
     const queryBuilder = this.notesRepository
       .createQueryBuilder('note')
       .leftJoinAndSelect('note.categories', 'category')
       .where('note.isArchived = :archived', { archived })
-      .orderBy('note.updatedAt', 'DESC');
+      .orderBy('note.updatedAt', 'DESC')
+      .take(limit)
+      .skip((page - 1) * limit);
 
     if (categoryId) {
-      queryBuilder.andWhere('category.id = :categoryId', { categoryId });
+      // Filtra notas que pertenezcan a la categoría buscada
+      queryBuilder.andWhere((qb) => {
+        const subQuery = qb
+          .subQuery()
+          .select('1')
+          .from('note_categories_category', 'nc')
+          .where('nc."noteId" = note.id')
+          .andWhere('nc."categoryId" = :categoryId', { categoryId })
+          .getQuery();
+        return `EXISTS ${subQuery}`;
+      });
     }
 
     return queryBuilder.getMany();
@@ -57,6 +74,31 @@ export class NotesService {
     }
 
     return note;
+  }
+
+  /**
+   * Devuelve cuántas notas hay por categoría y el total de notas en esa vista.
+   * Usa GROUP BY en SQL para no traer todos los datos al servidor de aplicación.
+   */
+  async getCounts(archived: boolean): Promise<NoteCountsResult> {
+    const [countRows, total] = await Promise.all([
+      this.notesRepository
+        .createQueryBuilder('note')
+        .select('category.id', 'categoryId')
+        .addSelect('COUNT(DISTINCT note.id)', 'count')
+        .innerJoin('note.categories', 'category')
+        .where('note.isArchived = :archived', { archived })
+        .groupBy('category.id')
+        .getRawMany<{ categoryId: string; count: string }>(),
+      this.notesRepository.count({ where: { isArchived: archived } }),
+    ]);
+
+    const counts = countRows.reduce<Record<string, number>>((acc, row) => {
+      acc[row.categoryId] = Number(row.count);
+      return acc;
+    }, {});
+
+    return { counts, total };
   }
 
   async update(id: string, updateNoteDto: UpdateNoteDto): Promise<Note> {

@@ -1,0 +1,6 @@
+node_modules
+dist
+.env
+
+# El certificado CA contiene detalles de infraestructura, no va al repo
+ca.pem
