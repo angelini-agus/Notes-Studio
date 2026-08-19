@@ -1,4 +1,4 @@
-import { Check, Save } from 'lucide-react';
+import { ArrowLeft, Check, Save } from 'lucide-react';
 import { Category, Note } from '../types';
 
 interface NoteEditorProps {
@@ -14,6 +14,8 @@ interface NoteEditorProps {
   onChange: (field: 'title' | 'content' | 'categoryIds', value: string | string[]) => void;
   onToggleCategory: (categoryId: string) => void;
   onSave: () => Promise<boolean>;
+  /** Solo en mobile: vuelve al panel de lista de notas */
+  onBack?: () => void;
 }
 
 export function NoteEditor({
@@ -25,9 +27,22 @@ export function NoteEditor({
   onChange,
   onToggleCategory,
   onSave,
+  onBack,
 }: NoteEditorProps) {
   return (
     <section className="panel-border panel-surface animate-fade-up-soft-delay-2 rounded-[28px] border p-5 shadow-panel backdrop-blur">
+      {/* Botón "volver" — solo visible en mobile */}
+      {onBack && (
+        <button
+          className="xl:hidden mb-4 flex items-center gap-1.5 text-sm text-zinc-500 transition hover:text-slate-900"
+          onClick={onBack}
+          type="button"
+        >
+          <ArrowLeft size={15} />
+          Back to notes
+        </button>
+      )}
+
       <div className="flex items-start justify-between gap-4">
         <div>
           <p className="text-xs font-medium uppercase tracking-[0.24em] text-zinc-400">Editor</p>

@@ -1,3 +1,4 @@
+import { FolderKanban, LayoutList, PenLine } from 'lucide-react';
 import { useState } from 'react';
 import { CategorySidebar } from './components/CategorySidebar';
 import { ConfirmDialog } from './components/ConfirmDialog';
@@ -15,6 +16,8 @@ type DialogState =
   | { type: 'note' }
   | { type: 'category'; category: Category }
   | null;
+
+type MobilePanel = 'sidebar' | 'list' | 'editor';
 
 function App() {
   const { dismissToast, notify, toasts } = useNotifications();
@@ -43,8 +46,28 @@ function App() {
     viewNoteCount,
     archiveSelected,
   } = useNotesApp(notify, isAuthenticated);
+
   const [dialogState, setDialogState] = useState<DialogState>(null);
   const [isAuthenticating, setIsAuthenticating] = useState(false);
+  // Panel activo en mobile. En desktop siempre se muestran los 3 simultáneamente.
+  const [mobilePanel, setMobilePanel] = useState<MobilePanel>('list');
+
+  // --- Handlers con navegación mobile integrada ---
+
+  function handleSelectNote(noteId: string) {
+    selectNote(noteId);
+    setMobilePanel('editor');
+  }
+
+  function handleStartCreate() {
+    startCreate();
+    setMobilePanel('editor');
+  }
+
+  function handleCategoryChange(categoryId?: string) {
+    changeCategoryFilter(categoryId);
+    setMobilePanel('list');
+  }
 
   async function handleConfirmDialog() {
     if (!dialogState) {
@@ -55,6 +78,7 @@ function App() {
       const didDelete = await deleteSelected();
       if (didDelete) {
         setDialogState(null);
+        setMobilePanel('list');
       }
       return;
     }
@@ -89,6 +113,7 @@ function App() {
 
   function handleLogout() {
     setDialogState(null);
+    setMobilePanel('list');
     logout();
     notify({
       title: 'Signed out',
@@ -97,26 +122,38 @@ function App() {
     });
   }
 
+  // Clases de visibilidad por panel en mobile
+  const panelClass = (panel: MobilePanel) =>
+    mobilePanel === panel ? 'block' : 'hidden xl:block';
+
   return (
     <>
       {isAuthenticated ? (
-        <main className="min-h-screen px-4 py-5 text-slate-900 md:px-8 md:py-8">
-          <div className="mx-auto grid max-w-7xl gap-5 xl:grid-cols-[280px_minmax(320px,1fr)_420px]">
-            <CategorySidebar
-              activeCategoryId={activeCategoryId}
-              categories={categories}
-              categoryCounts={categoryCounts}
-              onCategoryChange={changeCategoryFilter}
-              onCreateCategory={createCategory}
-              onLogout={handleLogout}
-              onRequestDeleteCategory={(category) => setDialogState({ type: 'category', category })}
-              sessionEmail={sessionEmail}
-              totalNotes={viewNoteCount}
-            />
+        // pb-20 en mobile para que la barra inferior no tape el contenido
+        <main className="min-h-screen px-4 py-5 pb-20 text-slate-900 md:px-8 md:py-8 xl:pb-8">
+          <div className="mx-auto max-w-7xl xl:grid xl:gap-5 xl:grid-cols-[280px_minmax(320px,1fr)_420px]">
 
-            <section className="animate-fade-up-soft-delay-1 space-y-5">
+            {/* Panel 1: Sidebar de categorías */}
+            <div className={panelClass('sidebar')}>
+              <CategorySidebar
+                activeCategoryId={activeCategoryId}
+                categories={categories}
+                categoryCounts={categoryCounts}
+                onCategoryChange={handleCategoryChange}
+                onCreateCategory={createCategory}
+                onLogout={handleLogout}
+                onRequestDeleteCategory={(category) =>
+                  setDialogState({ type: 'category', category })
+                }
+                sessionEmail={sessionEmail}
+                totalNotes={viewNoteCount}
+              />
+            </div>
+
+            {/* Panel 2: Lista de notas */}
+            <section className={`animate-fade-up-soft-delay-1 space-y-5 ${panelClass('list')}`}>
               <NotesHeader
-                onCreate={startCreate}
+                onCreate={handleStartCreate}
                 onViewChange={changeView}
                 totalNotes={notes.length}
                 view={view}
@@ -130,23 +167,27 @@ function App() {
                 <NotesList
                   notes={notes}
                   onRequestDelete={() => setDialogState({ type: 'note' })}
-                  onSelect={selectNote}
+                  onSelect={handleSelectNote}
                   onToggleArchive={archiveSelected}
                   selectedNoteId={selectedNote?.id ?? null}
                 />
               )}
             </section>
 
-            <NoteEditor
-              categories={categories}
-              draft={draft}
-              isSaving={isSaving}
-              saveFeedback={saveFeedback}
-              onChange={updateDraft}
-              onSave={saveNote}
-              onToggleCategory={toggleDraftCategory}
-              selectedNote={selectedNote}
-            />
+            {/* Panel 3: Editor */}
+            <div className={panelClass('editor')}>
+              <NoteEditor
+                categories={categories}
+                draft={draft}
+                isSaving={isSaving}
+                saveFeedback={saveFeedback}
+                onChange={updateDraft}
+                onBack={() => setMobilePanel('list')}
+                onSave={saveNote}
+                onToggleCategory={toggleDraftCategory}
+                selectedNote={selectedNote}
+              />
+            </div>
           </div>
 
           <ConfirmDialog
@@ -170,6 +211,49 @@ function App() {
                   : ''
             }
           />
+
+          {/* Barra de navegación inferior — solo visible en mobile (oculta en xl) */}
+          <nav className="xl:hidden fixed bottom-0 inset-x-0 z-40 border-t border-zinc-200/80 bg-white/90 backdrop-blur">
+            <div className="flex">
+              <button
+                className={`flex flex-1 flex-col items-center gap-1 px-3 py-3 text-xs font-medium transition-colors ${
+                  mobilePanel === 'sidebar' ? 'text-slate-900' : 'text-zinc-400 active:text-slate-900'
+                }`}
+                onClick={() => setMobilePanel('sidebar')}
+                type="button"
+              >
+                <FolderKanban size={20} />
+                <span>Categories</span>
+              </button>
+
+              <button
+                className={`flex flex-1 flex-col items-center gap-1 px-3 py-3 text-xs font-medium transition-colors ${
+                  mobilePanel === 'list' ? 'text-slate-900' : 'text-zinc-400 active:text-slate-900'
+                }`}
+                onClick={() => setMobilePanel('list')}
+                type="button"
+              >
+                <LayoutList size={20} />
+                <span>Notes</span>
+                {notes.length > 0 && (
+                  <span className={`-mt-0.5 text-[10px] font-semibold ${mobilePanel === 'list' ? 'text-slate-900' : 'text-zinc-400'}`}>
+                    {notes.length}
+                  </span>
+                )}
+              </button>
+
+              <button
+                className={`flex flex-1 flex-col items-center gap-1 px-3 py-3 text-xs font-medium transition-colors ${
+                  mobilePanel === 'editor' ? 'text-slate-900' : 'text-zinc-400 active:text-slate-900'
+                }`}
+                onClick={() => setMobilePanel('editor')}
+                type="button"
+              >
+                <PenLine size={20} />
+                <span>Editor</span>
+              </button>
+            </div>
+          </nav>
         </main>
       ) : (
         <LoginScreen isSubmitting={isAuthenticating} onSubmit={handleLogin} />
