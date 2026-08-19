@@ -23,18 +23,20 @@ Live Demo: https://notes-app-frontend-bice.vercel.app/
 - **Architecture**: Pure SPA with API logic strictly isolated within a dedicated service layer (`src/services/api.ts`).
 
 ### Backend
-- **NestJS 10**: Progressive Node.js framework maintaining a strict layered architecture (Controllers, Services, Repositories, DTOs, Entities).
+- **NestJS 10**: Progressive Node.js framework maintaining a strict layered architecture (Controllers, Services, Repositories, DTOs, Entities, Guards).
 - **Node.js**: 18+ required.
 - **npm**: 9+ required.
 - **Database**: PostgreSQL 14+ integrated via **TypeORM 0.3** for persistent relational data, migrations, and schema management.
 
 ## Key Features
 
-- **React-Powered UI**: Fast, responsive, and dynamic interface ensuring smooth navigation without page reloads. Fully responsive — works on mobile and desktop.
+- **React-Powered UI**: Fast, responsive, and dynamic interface ensuring smooth navigation without page reloads.
+- **Responsive Mobile & Desktop Layout**: Desktop 3-column equal-width layout with internal scrolling (no page scroll overflow) and a mobile bottom tab navigation bar.
 - **Comprehensive Note Management**: Full CRUD operations (Create, Read, Update, Delete) for notes.
-- **Organizational Tools**: Create custom categories and apply multiple tags per note for efficient filtering.
+- **Organizational Tools**: Create custom categories and apply multiple tags per note with efficient filtering via SQL subqueries.
 - **Archiving System**: Distinct views for active and archived notes to maintain a clean workspace.
-- **Relational Backend**: Persistent data storage utilizing TypeORM migrations and relational mapping.
+- **Relational Backend**: Persistent data storage utilizing TypeORM migrations, relations, and aggregated SQL `GROUP BY` counts.
+- **API Protection**: Global `ApiKeyGuard` validating incoming requests via `x-api-key`.
 
 ## Project Structure
 
@@ -42,23 +44,25 @@ Live Demo: https://notes-app-frontend-bice.vercel.app/
 .
 ├── backend
 │   ├── src
-│   │   ├── auth              # API key guard (global route protection)
+│   │   ├── auth              # API key guard (global route authorization)
 │   │   ├── categories        # Categories module (controller, service, entity, DTOs)
-│   │   ├── config            # TypeORM configuration
+│   │   ├── config            # TypeORM configuration (dynamic SSL / synchronize)
 │   │   ├── database
 │   │   │   ├── migrations    # TypeORM migration files
 │   │   │   └── seeds         # Demo data seed script
 │   │   └── notes             # Notes module (controller, service, entity, DTOs)
 │   ├── .env.example
+│   ├── .gitignore
 │   └── package.json
 ├── frontend
 │   ├── src
 │   │   ├── components        # UI components (NoteEditor, NotesList, CategorySidebar, etc.)
 │   │   ├── hooks             # Custom hooks (useNotesApp, useAuth, useNotifications)
-│   │   ├── lib               # Auth constants
-│   │   ├── services          # API service layer (api.ts)
+│   │   ├── lib               # Auth constants and environment configuration
+│   │   ├── services          # API service layer with typed endpoints and auth headers
 │   │   └── types             # TypeScript types
 │   ├── .env.example
+│   ├── .gitignore
 │   └── package.json
 ├── setup.sh
 └── README.md
