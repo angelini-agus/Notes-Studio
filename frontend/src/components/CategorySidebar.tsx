@@ -34,28 +34,28 @@ export function CategorySidebar({
   }
 
   return (
-    <aside className="panel-border panel-surface animate-fade-up-soft flex h-full flex-col rounded-[28px] border p-5 shadow-panel backdrop-blur">
-      <div className="flex items-center gap-3">
-        <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-slate-900 text-white">
-          <FolderKanban size={18} />
+    <aside className="panel-border panel-surface animate-fade-up-soft flex h-full max-h-full flex-col rounded-[24px] border p-4 shadow-panel backdrop-blur xl:overflow-hidden">
+      <div className="flex shrink-0 items-center gap-3">
+        <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-slate-900 text-white">
+          <FolderKanban size={16} />
         </div>
         <div className="min-w-0 flex-1">
-          <p className="text-xs font-medium uppercase tracking-[0.24em] text-zinc-400">Workspace</p>
-          <h1 className="text-lg font-semibold text-slate-900">Notes Studio</h1>
-          {sessionEmail && <p className="truncate text-sm text-zinc-500">{sessionEmail}</p>}
+          <p className="text-[11px] font-medium uppercase tracking-[0.2em] text-zinc-400">Workspace</p>
+          <h1 className="text-base font-semibold text-slate-900 leading-tight">Notes Studio</h1>
+          {sessionEmail && <p className="truncate text-xs text-zinc-500">{sessionEmail}</p>}
         </div>
 
         <button
-          className="panel-border flex h-10 w-10 items-center justify-center rounded-2xl border bg-white text-zinc-500 transition hover:border-zinc-400 hover:text-slate-900"
+          className="panel-border flex h-9 w-9 items-center justify-center rounded-xl border bg-white text-zinc-500 transition hover:border-zinc-400 hover:text-slate-900"
           onClick={onLogout}
           type="button"
         >
-          <LogOut size={16} />
+          <LogOut size={15} />
         </button>
       </div>
 
-      <div className="mt-6 flex flex-1 min-h-0 flex-col overflow-hidden">
-        <p className="shrink-0 text-xs font-medium uppercase tracking-[0.24em] text-zinc-400">Categories</p>
+      <div className="mt-5 flex flex-1 min-h-0 flex-col overflow-hidden">
+        <p className="shrink-0 text-[11px] font-medium uppercase tracking-[0.2em] text-zinc-400">Categories</p>
         <div className="mt-3 flex-1 min-h-0 space-y-2 overflow-y-auto pr-1 custom-scrollbar">
           <button
             className={`flex w-full items-center justify-between rounded-2xl border px-4 py-3 text-sm transition ${

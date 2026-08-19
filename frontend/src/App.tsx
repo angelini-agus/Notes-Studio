@@ -130,11 +130,11 @@ function App() {
     <>
       {isAuthenticated ? (
         // pb-20 en mobile para que la barra inferior no tape el contenido
-        <main className="min-h-screen px-4 py-5 pb-20 text-slate-900 md:px-8 md:py-8 xl:h-screen xl:max-h-screen xl:overflow-hidden xl:pb-8">
-          <div className="mx-auto max-w-7xl xl:grid xl:h-full xl:max-h-full xl:gap-5 xl:grid-cols-3 xl:overflow-hidden">
+        <main className="min-h-screen px-4 py-4 pb-20 text-slate-900 md:px-6 md:py-6 xl:h-screen xl:max-h-screen xl:overflow-hidden xl:py-4 xl:px-6">
+          <div className="mx-auto max-w-7xl h-full xl:grid xl:h-full xl:max-h-full xl:min-h-0 xl:gap-4 xl:grid-cols-3 xl:grid-rows-1 xl:overflow-hidden">
 
             {/* Panel 1: Sidebar de categorías */}
-            <div className={`${panelClass('sidebar')} xl:h-full xl:max-h-full xl:overflow-hidden`}>
+            <div className={`${panelClass('sidebar')} xl:h-full xl:max-h-full xl:min-h-0 xl:overflow-hidden`}>
               <CategorySidebar
                 activeCategoryId={activeCategoryId}
                 categories={categories}
@@ -151,7 +151,7 @@ function App() {
             </div>
 
             {/* Panel 2: Lista de notas (OVERVIEW) */}
-            <section className={`animate-fade-up-soft-delay-1 space-y-4 ${panelClass('list')} xl:flex xl:h-full xl:max-h-full xl:flex-col xl:overflow-hidden`}>
+            <section className={`animate-fade-up-soft-delay-1 space-y-3 ${panelClass('list')} xl:flex xl:h-full xl:max-h-full xl:min-h-0 xl:flex-col xl:overflow-hidden`}>
               <div className="shrink-0">
                 <NotesHeader
                   onCreate={handleStartCreate}
@@ -164,7 +164,7 @@ function App() {
               {/* Scroll interno: hasta 4 notas visibles simultáneamente, el resto con scroll interno sin afectar el body */}
               <div className="xl:flex-1 xl:min-h-0 xl:overflow-y-auto xl:pr-1.5 custom-scrollbar">
                 {isLoading ? (
-                  <div className="panel-border animate-fade-up-soft-delay-2 rounded-[28px] border bg-white/70 px-6 py-16 text-center text-sm text-zinc-500 shadow-panel">
+                  <div className="panel-border animate-fade-up-soft-delay-2 rounded-[22px] border bg-white/70 px-6 py-12 text-center text-sm text-zinc-500 shadow-panel">
                     Loading notes...
                   </div>
                 ) : (
@@ -180,7 +180,7 @@ function App() {
             </section>
 
             {/* Panel 3: Editor */}
-            <div className={`${panelClass('editor')} xl:h-full xl:max-h-full xl:overflow-hidden`}>
+            <div className={`${panelClass('editor')} xl:h-full xl:max-h-full xl:min-h-0 xl:overflow-hidden`}>
               <NoteEditor
                 categories={categories}
                 draft={draft}
