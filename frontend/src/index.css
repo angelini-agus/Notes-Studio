@@ -75,3 +75,26 @@ textarea {
 .panel-surface {
   background-color: rgba(255, 255, 255, 0.86);
 }
+
+/* Scrollbar interno sutil y elegante */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 5px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background-color: rgba(161, 161, 170, 0.35);
+  border-radius: 9999px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(161, 161, 170, 0.65);
+}
+
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(161, 161, 170, 0.35) transparent;
+}

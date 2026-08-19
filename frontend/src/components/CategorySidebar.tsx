@@ -54,9 +54,9 @@ export function CategorySidebar({
         </button>
       </div>
 
-      <div className="mt-8">
-        <p className="text-xs font-medium uppercase tracking-[0.24em] text-zinc-400">Categories</p>
-        <div className="mt-3 space-y-2">
+      <div className="mt-6 flex flex-1 min-h-0 flex-col overflow-hidden">
+        <p className="shrink-0 text-xs font-medium uppercase tracking-[0.24em] text-zinc-400">Categories</p>
+        <div className="mt-3 flex-1 min-h-0 space-y-2 overflow-y-auto pr-1 custom-scrollbar">
           <button
             className={`flex w-full items-center justify-between rounded-2xl border px-4 py-3 text-sm transition ${
               !activeCategoryId
@@ -104,7 +104,7 @@ export function CategorySidebar({
         </div>
       </div>
 
-      <form className="mt-auto space-y-3 pt-8" onSubmit={handleSubmit}>
+      <form className="mt-auto shrink-0 space-y-3 pt-6" onSubmit={handleSubmit}>
         <label className="block text-xs font-medium uppercase tracking-[0.24em] text-zinc-400">
           New Category
         </label>

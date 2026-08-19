@@ -25,14 +25,14 @@ export function NotesList({
   }
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-3 pb-2">
       {notes.map((note) => {
         const isSelected = note.id === selectedNoteId;
 
         return (
           <article
             key={note.id}
-            className={`rounded-[28px] border p-5 transition-all duration-300 ease-out ${
+            className={`rounded-[24px] border p-4.5 transition-all duration-300 ease-out ${
               isSelected
                 ? 'border-slate-900 bg-slate-900 text-white shadow-[0_18px_45px_rgba(15,23,42,0.18)]'
                 : 'panel-border panel-surface text-slate-900 shadow-panel hover:-translate-y-0.5 hover:border-zinc-400'
@@ -40,28 +40,25 @@ export function NotesList({
           >
             <button className="w-full text-left" onClick={() => onSelect(note.id)} type="button">
               <div className="flex items-start justify-between gap-4">
-                <div>
-                  <h3 className="text-base font-semibold">{note.title}</h3>
+                <div className="min-w-0 flex-1">
+                  <h3 className="truncate text-base font-semibold">{note.title}</h3>
                   <p
-                    className={`mt-2 overflow-hidden text-sm ${
+                    className={`mt-1.5 line-clamp-2 text-sm ${
                       isSelected ? 'text-slate-200' : 'text-zinc-500'
                     }`}
-                    style={{
-                      maxHeight: isSelected ? '8rem' : '2.5rem',
-                    }}
                   >
                     {note.content}
                   </p>
                 </div>
                 {isSelected ? (
-                  <ArrowDownLeft size={16} className="text-slate-300 transition-transform duration-300" />
+                  <ArrowDownLeft size={16} className="shrink-0 text-slate-300 transition-transform duration-300" />
                 ) : (
-                  <ArrowUpRight size={16} className="text-zinc-400 transition-transform duration-300" />
+                  <ArrowUpRight size={16} className="shrink-0 text-zinc-400 transition-transform duration-300" />
                 )}
               </div>
             </button>
 
-            <div className="mt-5 flex flex-wrap items-center justify-between gap-4">
+            <div className="mt-3.5 flex flex-wrap items-center justify-between gap-3">
               <div className="flex flex-wrap gap-2">
                 {note.categories.map((category) => (
                   <span

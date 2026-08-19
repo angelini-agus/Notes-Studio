@@ -30,7 +30,7 @@ export function NoteEditor({
   onBack,
 }: NoteEditorProps) {
   return (
-    <section className="panel-border panel-surface animate-fade-up-soft-delay-2 rounded-[28px] border p-5 shadow-panel backdrop-blur">
+    <section className="panel-border panel-surface animate-fade-up-soft-delay-2 flex h-full max-h-full flex-col rounded-[28px] border p-5 shadow-panel backdrop-blur xl:overflow-hidden">
       {/* Botón "volver" — solo visible en mobile */}
       {onBack && (
         <button
@@ -43,7 +43,7 @@ export function NoteEditor({
         </button>
       )}
 
-      <div className="flex items-start justify-between gap-4">
+      <div className="flex shrink-0 items-start justify-between gap-4">
         <div>
           <p className="text-xs font-medium uppercase tracking-[0.24em] text-zinc-400">Editor</p>
           <h3 className="mt-2 text-xl font-semibold text-slate-900">
@@ -73,8 +73,8 @@ export function NoteEditor({
         </div>
       </div>
 
-      <div className="mt-6 space-y-5">
-        <div>
+      <div className="mt-5 flex flex-1 min-h-0 flex-col space-y-4 overflow-y-auto pr-1 custom-scrollbar">
+        <div className="shrink-0">
           <label className="mb-2 block text-sm font-medium text-zinc-600">Title</label>
           <input
             className="w-full rounded-2xl border border-zinc-300/90 bg-zinc-50 px-4 py-3 text-slate-900 outline-none transition focus:border-accent-600 focus:bg-white"
@@ -84,18 +84,18 @@ export function NoteEditor({
           />
         </div>
 
-        <div>
+        <div className="flex flex-1 min-h-[160px] flex-col">
           <label className="mb-2 block text-sm font-medium text-zinc-600">Content</label>
           <textarea
-            className="min-h-[220px] w-full rounded-3xl border border-zinc-300/90 bg-zinc-50 px-4 py-4 text-slate-900 outline-none transition focus:border-accent-600 focus:bg-white"
+            className="min-h-[160px] w-full flex-1 resize-none rounded-3xl border border-zinc-300/90 bg-zinc-50 px-4 py-4 text-slate-900 outline-none transition focus:border-accent-600 focus:bg-white"
             onChange={(event) => onChange('content', event.target.value)}
             placeholder="Capture the note details here..."
             value={draft.content}
           />
         </div>
 
-        <div>
-          <label className="mb-3 block text-sm font-medium text-zinc-600">Categories</label>
+        <div className="shrink-0 pb-1">
+          <label className="mb-2.5 block text-sm font-medium text-zinc-600">Categories</label>
           <div className="flex flex-wrap gap-2">
             {categories.map((category) => {
               const isActive = draft.categoryIds.includes(category.id);
