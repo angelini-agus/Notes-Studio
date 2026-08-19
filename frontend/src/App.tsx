@@ -131,7 +131,7 @@ function App() {
       {isAuthenticated ? (
         // pb-20 en mobile para que la barra inferior no tape el contenido
         <main className="min-h-screen px-4 py-5 pb-20 text-slate-900 md:px-8 md:py-8 xl:pb-8">
-          <div className="mx-auto max-w-7xl xl:grid xl:gap-5 xl:grid-cols-[280px_minmax(320px,1fr)_420px]">
+          <div className="mx-auto max-w-7xl xl:grid xl:gap-5 xl:grid-cols-3">
 
             {/* Panel 1: Sidebar de categorías */}
             <div className={panelClass('sidebar')}>
